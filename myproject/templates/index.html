@@ -2,16 +2,167 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>動画アップロード</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超音波画像の筋滑走動態定量化ツール echoflow95</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Load static files -->
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url("{% static 'images/background.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+            color: #F4EAEA; /* Base color */
+        }
+
+        h1 {
+            font-size: 50px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            color: #F4EAEA; /* White color */
+        }
+
+        h2 {
+            font-size: 50px; /* 1.5 times bigger */
+            margin-bottom: 60px;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
+            color: #F4EAEA; /* White color */
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 480px;
+            border-top: 5px solid #493024; /* Text color */
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #493024; /* Text color */
+            text-align: left;
+            width: 100%;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-wrapper label.custom-file-upload {
+            display: inline-block;
+            background-color: #493024; /* Text color */
+            color: #F4EAEA; /* Base color */
+            padding: 16px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            width: auto;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
+        }
+
+        .file-input-wrapper label.custom-file-upload:hover {
+            background-color: #3d2b1f; /* Slightly darker shade */
+            transform: scale(1.05);
+        }
+
+        .file-input-wrapper input[type="file"]:focus + label,
+        .file-input-wrapper label:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #ffcc00;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #493024; /* Text color */
+        }
+
+        button {
+            background-color: #493024; /* Text color */
+            color: #F4EAEA; /* Base color */
+            border: none;
+            border-radius: 15px; /* Rounded corners */
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #3d2b1f; /* Slightly darker shade */
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>動画アップロード</h1>
-    <form action="/upload/" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="video">動画ファイルを選択:</label>
-        <input type="file" name="video" id="video" required>
-        <button type="submit">アップロード</button>
-    </form>
+    <h1>超音波画像の筋滑走動態定量化ツール</h1>
+    <h2>echoflow95</h2>
+    <div class="container">
+        <form action="/upload/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="file-input-wrapper">
+                <label for="video" class="custom-file-upload">動画ファイルを選択</label>
+                <input type="file" name="video" id="video" required>
+                <div class="file-name" id="file-name"></div> <!-- Display selected file name here -->
+                <div class="error-message" id="file-error">動画ファイルが選択されていません。</div>
+            </div>
+            <button type="submit">アップロード</button>
+        </form>
+    </div>
+
+    <script>
+        // Display the selected file name
+        document.getElementById('video').addEventListener('change', function(event) {
+            const fileName = event.target.files[0] ? event.target.files[0].name : '';
+            document.getElementById('file-name').textContent = fileName ? '選択されたファイル: ' + fileName : '';
+        });
+
+        // Display error if file input is not selected (optional JS check)
+        document.querySelector('form').onsubmit = function(event) {
+            const fileInput = document.getElementById('video');
+            const errorMessage = document.getElementById('file-error');
+            if (!fileInput.value) {
+                errorMessage.style.display = 'block';
+                event.preventDefault(); // Prevent form submission if file not selected
+            } else {
+                errorMessage.style.display = 'none';
+            }
+        };
+    </script>
 </body>
 </html>
+
 

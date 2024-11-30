@@ -1,0 +1,14 @@
+# Pythonのバイトコードファイルを無視
+*.pyc
+__pycache__
+
+# 仮想環境ディレクトリを無視
+venv/
+.venv/
+
+# メディアファイルと静的ファイルを無視
+myproject//media/
+myproject//static/
+
+# ローカル設定やシークレットキーを無視
+myproject/myproject/settings.py

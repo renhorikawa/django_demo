@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>動画アップロード</title>
+</head>
+<body>
+    <h1>動画アップロード</h1>
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="video">動画ファイルを選択:</label>
+        <input type="file" name="video" id="video" required>
+        <button type="submit">アップロード</button>
+    </form>
+</body>
+</html>
+

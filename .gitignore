@@ -7,7 +7,7 @@ venv/
 .venv/
 
 # メディアファイルと静的ファイルを無視
-myproject/media/output_video.avi
+/myproject/media/*.avi
 
 # ローカル設定やシークレットキーを無視
 myproject/myproject/settings.py

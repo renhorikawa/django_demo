@@ -7,8 +7,8 @@ venv/
 .venv/
 
 # メディアファイルと静的ファイルを無視
-myproject//media/
-myproject//static/
+myproject/media/
+myproject/static/
 
 # ローカル設定やシークレットキーを無視
 myproject/myproject/settings.py

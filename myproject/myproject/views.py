@@ -72,7 +72,7 @@ def upload_video(request):
         frame_count = 0
         total_top_95_percent_movement = 0.0
         pixel_to_distance = 0.0698  # 1ピクセルあたりの距離 (cm)
-        roi = (300, 300, 200, 150)
+        roi = (200, 200, 100, 100)
 
         # 出力動画の設定
         output_video_path = os.path.join(settings.MEDIA_ROOT, 'output_video.avi')

@@ -1,15 +1,113 @@
-<!-- result.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>結果</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結果 - echoflow95</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Load static files -->
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url("{% static 'images/background.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+            color: #F4EAEA; /* Base color */
+        }
+
+        h1 {
+            font-size: 50px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            color: #F4EAEA;
+        }
+
+        h2 {
+            font-size: 30px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #F4EAEA;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            border-top: 5px solid #493024; /* Text color */
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: 500;
+            color: #493024;
+            margin: 20px 0;
+        }
+
+        .download-link {
+            background-color: #493024;
+            color: #F4EAEA;
+            padding: 12px 24px;
+            border-radius: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-link:hover {
+            background-color: #3d2b1f; /* Slightly darker shade */
+        }
+
+        .back-button {
+            background-color: #F4EAEA;
+            color: #493024;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #d1b7b0;
+        }
+
+        .download-text {
+            color: #3d2b1f; /* Blackish brown */
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>処理結果</h1>
-    <p>ROIの上位95%の移動距離: {{ total_movement }}mm</p>
-
-    <p>動画をダウンロードする:</p>
-    <a href="{{ video_url }}" download="output_video.avi">ダウンロード</a>
+    <h2>echoflow95</h2>
+    <div class="container">
+        <p class="result-value">推定移動距離: <strong>{{ total_movement }} mm</strong></p>
+        <p class="download-text">以下のリンクから動画をダウンロードできます:</p>
+        <a href="{{ video_url }}" class="download-link" download="output_video.avi">動画をダウンロード</a>
+        <br><br>
+        <a href="/" class="back-button">戻る</a>
+    </div>
 </body>
 </html>
+

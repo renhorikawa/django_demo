@@ -7,6 +7,7 @@ import tempfile
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
+from django.core.exceptions import ValidationError
 
 # 動画の初期化
 def initialize_video_capture(video_file):
@@ -65,19 +66,34 @@ def index(request):
 def upload_video(request):
     if request.method == 'POST' and request.FILES.get('video'):
         video_file = request.FILES['video']
+        
+        # アップロードファイルの検証
+        allowed_extensions = ['.mp4', '.mov', '.avi', '.mkv', '.flv', '.webm']
+        file_extension = os.path.splitext(video_file.name)[1].lower()
 
+        if file_extension not in allowed_extensions:
+            error_message = f"許可されていない拡張子です。アップロード可能な拡張子: {', '.join(allowed_extensions)}"
+            print(error_message)  # コンソールに出力
+            return render(request, 'error.html', {
+                'error_message': error_message
+            })
+        
         # アップロードサイズ制限チェック (10MB)
         max_size = 10 * 1024 * 1024  # 10MB in bytes
         if video_file.size > max_size:
+            error_message = "ファイルサイズが10MBを超えています。別の動画をアップロードしてください。"
+            print(error_message)  # コンソールに出力
             return render(request, 'error.html', {
-                'error_message': "ファイルサイズが10MBを超えています。別の動画をアップロードしてください。"
+                'error_message': error_message
             })
 
         # 動画ファイルの初期化
         cap, prvs = initialize_video_capture(video_file)
         if cap is None:
+            error_message = "動画の読み込みに失敗しました。別の動画を試してください。"
+            print(error_message)  # コンソールに出力
             return render(request, 'error.html', {
-                'error_message': "動画の読み込みに失敗しました。別の動画を試してください。"
+                'error_message': error_message
             })
 
         frame_count = 0

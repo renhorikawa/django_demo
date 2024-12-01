@@ -57,17 +57,28 @@ def draw_arrows(frame, flow, roi, mag, color=(0, 255, 0), scale=10, arrow_length
                 thickness = 2
                 cv2.arrowedLine(frame, (x + x_pos, y + y_pos), (end_x, end_y), color, thickness, tipLength=0.05)
 
+# ホームページ
 def index(request):
     return render(request, 'index.html')
 
+# 動画アップロード処理
 def upload_video(request):
-    if request.method == 'POST' and request.FILES['video']:
+    if request.method == 'POST' and request.FILES.get('video'):
         video_file = request.FILES['video']
+
+        # アップロードサイズ制限チェック (10MB)
+        max_size = 10 * 1024 * 1024  # 10MB in bytes
+        if video_file.size > max_size:
+            return render(request, 'error.html', {
+                'error_message': "ファイルサイズが10MBを超えています。別の動画をアップロードしてください。"
+            })
 
         # 動画ファイルの初期化
         cap, prvs = initialize_video_capture(video_file)
         if cap is None:
-            return HttpResponse("動画の読み込みに失敗しました", status=500)
+            return render(request, 'error.html', {
+                'error_message': "動画の読み込みに失敗しました。別の動画を試してください。"
+            })
 
         frame_count = 0
         total_top_95_percent_movement = 0.0
@@ -116,10 +127,12 @@ def upload_video(request):
         out.release()
 
         # URL 生成してリダイレクト
-        result_url = reverse('result') + f"?total_movement={total_top_95_percent_movement:.2f} &video_url={output_video_path}"
+        result_url = reverse('result') + f"?total_movement={total_top_95_percent_movement:.2f}&video_url={output_video_path}"
         return redirect(result_url)
 
-    return HttpResponse("動画ファイルが送信されていません", status=400)
+    return render(request, 'error.html', {
+        'error_message': "動画ファイルが送信されていません。"
+    })
 
 # 結果表示ビュー
 def result(request):

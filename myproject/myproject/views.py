@@ -1,33 +1,26 @@
+from django.shortcuts import render, redirect
+from django.urls import reverse
 import os
-import uuid
 import cv2
 import numpy as np
 import tempfile
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.http import HttpResponse
-from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 
 # 動画の初期化
 def initialize_video_capture(video_file):
-    # ユニークなファイル名をUUIDで生成
-    unique_filename = str(uuid.uuid4()) + '.mp4'
-    temp_file_path = os.path.join(tempfile.gettempdir(), unique_filename)
-    
-    # バイト列を一時ファイルに書き込む
-    with open(temp_file_path, 'wb') as temp_file:
-        temp_file.write(video_file.read())
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    temp_file.write(video_file.read())  # バイト列を一時ファイルに書き込む
+    temp_file.close()
 
-    # 動画キャプチャの初期化
-    cap = cv2.VideoCapture(temp_file_path)
+    cap = cv2.VideoCapture(temp_file.name)
     ret, frame1 = cap.read()
     if not ret:
         print("動画の読み込みに失敗しました。")
         cap.release()
-        os.remove(temp_file_path)  # 一時ファイルを削除
-        return None, None, None
-    return cap, cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY), temp_file_path
+        return None, None
+    return cap, cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
 
 # ヒストグラム平坦化
 def histogram_equalization(image):
@@ -72,34 +65,19 @@ def index(request):
 def upload_video(request):
     if request.method == 'POST' and request.FILES.get('video'):
         video_file = request.FILES['video']
-        
-        # アップロードファイルの検証
-        allowed_extensions = ['.mp4', '.mov', '.avi', '.mkv', '.flv', '.webm']
-        file_extension = os.path.splitext(video_file.name)[1].lower()
 
-        if file_extension not in allowed_extensions:
-            error_message = f"許可されていない拡張子です。アップロード可能な拡張子: {', '.join(allowed_extensions)}"
-            print(error_message)  # コンソールに出力
-            return render(request, 'error.html', {
-                'error_message': error_message
-            })
-        
         # アップロードサイズ制限チェック (10MB)
         max_size = 10 * 1024 * 1024  # 10MB in bytes
         if video_file.size > max_size:
-            error_message = "ファイルサイズが10MBを超えています。別の動画をアップロードしてください。"
-            print(error_message)  # コンソールに出力
             return render(request, 'error.html', {
-                'error_message': error_message
+                'error_message': "ファイルサイズが10MBを超えています。別の動画をアップロードしてください。"
             })
 
         # 動画ファイルの初期化
-        cap, prvs, temp_file_name = initialize_video_capture(video_file)
+        cap, prvs = initialize_video_capture(video_file)
         if cap is None:
-            error_message = "動画の読み込みに失敗しました。別の動画を試してください。"
-            print(error_message)  # コンソールに出力
             return render(request, 'error.html', {
-                'error_message': error_message
+                'error_message': "動画の読み込みに失敗しました。別の動画を試してください。"
             })
 
         frame_count = 0
@@ -107,9 +85,8 @@ def upload_video(request):
         pixel_to_distance = 0.0698  # 1ピクセルあたりの距離 (cm)
         roi = (200, 200, 100, 100)
 
-        # 出力動画のユニークなファイル名を生成
-        unique_output_filename = str(uuid.uuid4()) + '_output_video.avi'
-        output_video_path = os.path.join(settings.MEDIA_ROOT, unique_output_filename)
+        # 出力動画の設定
+        output_video_path = os.path.join(settings.MEDIA_ROOT, 'output_video.avi')
 
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         fps = 30
@@ -149,9 +126,6 @@ def upload_video(request):
         cap.release()
         out.release()
 
-        # 一時ファイルの削除
-        os.remove(temp_file_name)
-
         # URL 生成してリダイレクト
         result_url = reverse('result') + f"?total_movement={total_top_95_percent_movement:.2f}&video_url={output_video_path}"
         return redirect(result_url)
@@ -173,4 +147,3 @@ def result(request):
         'total_movement': total_movement,
         'video_url': video_url
     })
-

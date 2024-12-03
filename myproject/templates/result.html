@@ -104,10 +104,10 @@
     <div class="container">
         <p class="result-value">推定移動距離: <strong>{{ total_movement }} mm</strong></p>
         <p class="download-text">以下のリンクから動画をダウンロードできます:</p>
-        <a href="{{ video_url }}" class="download-link" download="output_video.avi">動画をダウンロード</a>
+        <!-- ダウンロードリンクのURLをdownload_videoビューに変更 -->
+        <a href="{% url 'download_video' %}?video_url={{ video_url }}" class="download-link">動画をダウンロード</a>
         <br><br>
         <a href="/" class="back-button">戻る</a>
     </div>
 </body>
 </html>
-
